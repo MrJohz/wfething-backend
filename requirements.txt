@@ -1,0 +1,12 @@
+PyYAML==3.11
+arrow==0.4.2
+bottle==0.12.7
+bottle-sqlite==0.1.2
+click==2.4
+kaptan==0.5.7
+lxml==3.3.5
+py==1.4.20
+pytest==2.5.2
+python-dateutil==2.2
+requests==2.3.0
+six==1.7.3
