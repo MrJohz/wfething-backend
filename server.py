@@ -31,5 +31,7 @@ def get_region(db, name):
 
     return jsn
 
-if __name__ == "__main__":
+if __name__ == "__main__" and len(sys.argv) > 1 and sys.argv[1] == "debug":
     run(app, host='localhost', port=8080, debug=True)
+
+application = app
