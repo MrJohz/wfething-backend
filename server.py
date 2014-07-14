@@ -10,6 +10,9 @@ from wfeconfig import WFEConfig
 config_format = kaptan.HANDLER_EXT.get(os.path.splitext('config.ini')[1][1:], None)
 config = WFEConfig('config.ini', format=config_format)
 
+def simple(name):
+    return name.replace(' ', '_').lower()
+
 app = Bottle()
 app.install(SQLitePlugin(dbfile=config['general.db_file']))
 
@@ -34,6 +37,9 @@ def get_region(db, name):
 
     response.content_type = 'application/json'
 
+    name = simple(name)
+    fullname = None
+
     last_wfe = ''
     for row in db.execute("SELECT * FROM regions WHERE lcname=? ORDER BY date", (name,)):
         entry = dict(row)
@@ -41,11 +47,15 @@ def get_region(db, name):
             last_wfe = entry['wfe']
         else:
             entry['wfe'] = last_wfe
+
+        fullname = entry.pop('name')
+        del entry['lcname']
         jsn['data'].insert(0, entry)
+
+    jsn['name'] = fullname
 
     if request.params.get('pretty') is not None:
         return json.dumps(jsn, indent=4)
-
     return json.dumps(jsn, separators=(',', ':'))
 
 if __name__ == "__main__":
