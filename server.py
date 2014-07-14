@@ -1,6 +1,7 @@
 import os
+import json
 
-from bottle import Bottle, run, request
+from bottle import Bottle, run, request, response
 from bottle_sqlite import SQLitePlugin
 import kaptan
 
@@ -14,11 +15,20 @@ app.install(SQLitePlugin(dbfile=config['general.db_file']))
 
 @app.route('/')
 def list_all(db):
-    return {'names': [dict(row) for row in db.execute("SELECT DISTINCT name, lcname FROM regions")]}
+    response.content_type = 'application/json'
+
+    jsn = {'names': [row['name'] for row in db.execute("SELECT DISTINCT name FROM regions")]}
+
+    if request.params.get('pretty') is not None:
+        return json.dumps(jsn, indent=4)
+
+    return json.dumps(jsn, separators=(',',':'))
 
 @app.route('/<name>')
 def get_region(db, name):
     jsn = {'data': []}
+
+    response.content_type = 'application/json'
 
     last_wfe = ''
     for row in db.execute("SELECT * FROM regions WHERE lcname=? ORDER BY date", (name,)):
@@ -29,9 +39,20 @@ def get_region(db, name):
             entry['wfe'] = last_wfe
         jsn['data'].insert(0, entry)
 
-    return jsn
+    if request.params.get('pretty') is not None:
+        return json.dumps(jsn, indent=4)
 
-if __name__ == "__main__" and len(sys.argv) > 1 and sys.argv[1] == "debug":
-    run(app, host='localhost', port=8080, debug=True)
+    return json.dumps(jsn, separators=(',', ':'))
 
-application = app
+if __name__ == "__main__":
+    import sys
+
+    if len(sys.argv) > 1 and sys.argv[1] == "debug":
+        print("Running debug server")
+        run(app, host='localhost', port=config['server.port'], debug=True)
+    elif len(sys.argv) > 1 and sys.argv[1] == "cherry":
+        print("Running debug cherrypy server")
+        run(app, host='localhost', server='cherrypy', port=config['server.port'], debug=True)
+    else:
+        print("Running production cherrypy server")
+        run(app, host='localhost', server='cherrypy', port=config['server.port'])

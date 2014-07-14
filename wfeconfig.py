@@ -11,3 +11,7 @@ class WFEConfig(config.Config):
 
         useragent = config.STR()
         tmp_dir = config.STR()
+
+    class server(config.Section):
+
+        port = config.INT()
