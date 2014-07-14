@@ -4,7 +4,6 @@ import gzip
 import sqlite3
 import pathlib
 
-import click
 import arrow
 from lxml import etree
 import requests
