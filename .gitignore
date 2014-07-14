@@ -50,4 +50,5 @@ coverage.xml
 docs/_build/
 
 # PyBuilder
-target/
+target/config.ini
+config.ini
