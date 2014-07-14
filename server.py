@@ -13,6 +13,10 @@ config = WFEConfig('config.ini', format=config_format)
 app = Bottle()
 app.install(SQLitePlugin(dbfile=config['general.db_file']))
 
+@app.hook('after_request')
+def enable_cors():
+    response.headers['Access-Control-Allow-Origin'] = '*'
+
 @app.route('/')
 def list_all(db):
     response.content_type = 'application/json'
