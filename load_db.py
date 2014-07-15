@@ -97,6 +97,7 @@ def save_to_database(db, rdict, date):
 def parse_args(args):
     config = "config.ini"
     date = None
+    verbose = False
 
     for arg in args:
         if arg.startswith('--config='):
@@ -104,16 +105,22 @@ def parse_args(args):
         elif arg.startswith('--date='):
             date = arg[7:]
             date = arrow.get(date, 'YYYY-MM-DD')
+        elif arg == "--verbose":
+            verbose = True
 
     config_format = kaptan.HANDLER_EXT.get(os.path.splitext(config)[1][1:], None)
 
     config = WFEConfig(config, format=config_format)
-    return {"date": date, "config": config}
+    return {"date": date, "config": config, "verbose": verbose}
 
 
-def main(config, date=None):
+def main(config, date=None, verbose=False):
 
+    if verbose:
+        print("Downloading file")
     fp = download(config['load_db.useragent'], pathlib.Path(config['load_db.tmp_dir']), date)
+    if verbose:
+        print("File Downloaded")
     #fp = pathlib.Path(config['load_db.tmp_dir']) / 'rdump.xml.gz'
 
     if date is None:
@@ -121,21 +128,30 @@ def main(config, date=None):
 
     conn = sqlite3.connect(config['general.db_file'])
     conn.row_factory = sqlite3.Row
+    if verbose:
+        print("SQL Connection initiated")
 
     db = conn.cursor()
 
     db.execute(SQL_PHRASE_GET_INDEX)
     if db.fetchone() is not None:
+        if verbose:
+            print("Adding indexes to db")
         db.execute(SQL_PHRASE_ADD_INDEX)
         db.execute(SQL_PHRASE_ANALYSE)
 
     db.execute(SQL_PHRASE_CREATE_TABLE)
 
+    if verbose:
+        print("Obtaining regions")
     for region in regions(fp, date):
         save_to_database(db, region, date)
 
     conn.commit()
     conn.close()
+
+    if verbose:
+        print("All done")
 
 if __name__ == "__main__":
     main(**parse_args(sys.argv))
