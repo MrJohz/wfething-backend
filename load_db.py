@@ -150,6 +150,8 @@ def main(config, date=None, verbose=False):
         print("Obtaining regions")
     for region in regions(fp, date):
         save_to_database(db, region, date)
+        if verbose:
+            print("Submitted region:", region['name'])
 
     conn.commit()
     conn.close()
