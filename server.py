@@ -1,5 +1,6 @@
 import os
 import json
+import html
 
 from bottle import Bottle, run, request, response
 from bottle_sqlite import SQLitePlugin
@@ -12,6 +13,10 @@ config = WFEConfig('config.ini', format=config_format)
 
 def simple(name):
     return name.replace(' ', '_').lower()
+
+def decode(wfe):
+    wfe = wfe.replace('&amp;', '&')
+    return html.unescape(wfe)
 
 app = Bottle()
 app.install(SQLitePlugin(dbfile=config['general.db_file']))
@@ -44,6 +49,7 @@ def get_region(db, name):
     for row in db.execute("SELECT * FROM regions WHERE lcname=? ORDER BY date", (name,)):
         entry = dict(row)
         if entry['wfe'] is not None:
+            entry['wfe'] = decode(entry['wfe'])
             last_wfe = entry['wfe']
         else:
             entry['wfe'] = last_wfe
