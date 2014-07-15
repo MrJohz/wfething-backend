@@ -12,7 +12,8 @@ import kaptan
 from wfeconfig import WFEConfig
 
 NATIONSTATES_URL = "http://www.nationstates.net/pages/regions.xml.gz"
-AFFORESS_URL = "http://dailydumps.s3-us-west-2.amazonaws.com/regions/{date_str}-regions.xml.gz"
+AFFORESS_URL_ONE = "http://dailydumps.s3-us-west-2.amazonaws.com/regions/{date_str}-regions.xml.gz"
+AFFORESS_URL_TWO = "http://dailydumps.s3-us-west-2.amazonaws.com/regions/{year}/{date_str}-regions.xml.gz"
 
 SQL_PHRASE_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS regions (lcname TEXT, name TEXT, wfe TEXT, date INT)"
 SQL_PHRASE_SELECT = "SELECT wfe FROM regions WHERE lcname = ? AND date < ? AND wfe NOT NULL ORDER BY date DESC LIMIT 1"
@@ -76,7 +77,10 @@ def download(useragent, tmp_dir, date=None):
         fp = download_file(requester, NATIONSTATES_URL, filepath)
     else:
         datestr = date.format('YYYY-MM-DD')
-        url = AFFORESS_URL.format(date_str=datestr)
+        if date.year in [2011, 2012, 2013]:
+            url = AFFORESS_URL_TWO.format(year=date.year, date_str=datestr)
+        else:
+            url = AFFORESS_URL_ONE.format(date_str=datestr)
         fp = download_file(requester, url, filepath)
 
     return fp
