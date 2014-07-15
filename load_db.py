@@ -76,7 +76,7 @@ def download(useragent, tmp_dir, date=None):
         fp = download_file(requester, NATIONSTATES_URL, filepath)
     else:
         datestr = date.format('YYYY-MM-DD')
-        url = AFFORESS_URL.format(datestr)
+        url = AFFORESS_URL.format(date_str=datestr)
         fp = download_file(requester, url, filepath)
 
     return fp
