@@ -2,8 +2,10 @@ from numbers import Number
 
 NOOP = lambda ret: lambda *args, **kwargs: ret
 
+
 class Section():
     pass
+
 
 class Option():
 
@@ -30,33 +32,33 @@ class Option():
 
 class INT(Option):
 
-    def convert(self, var:str):
+    def convert(self, var: str):
         try:
             return int(var)
         except ValueError:
             return None
-    
+
     def test(self, var):
         return True if isinstance(var, int) else False
 
 
 class STR(Option):
 
-    def convert(self, var:str):
+    def convert(self, var: str):
         return var
-    
+
     def test(self, var):
         return True if isinstance(var, str) else False
 
 
 class NUMBER(Option):
 
-    def convert(self, var:str):
+    def convert(self, var: str):
         try:
-            return int(i)
+            return int(var)
         except ValueError:
             try:
-                return float(i)
+                return float(var)
             except ValueError:
                 return None
 
@@ -66,7 +68,7 @@ class NUMBER(Option):
 
 class FLOAT(Option):
 
-    def convert(self, var:str):
+    def convert(self, var: str):
         try:
             return float(i)
         except ValueError:
